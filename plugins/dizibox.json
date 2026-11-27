@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "dizibox",
-  "version": 1,
+  "version": 3,
   "name": "DiziBox",
   "type": "series",
   "baseUrl": "https://www.dizibox.live",
@@ -81,6 +81,13 @@
     "maxPages": 14,
     "unwrapBase64": true,
     "cryptoJsOpenSsl": true,
-    "kingQuery": true
+    "kingQuery": true,
+    "embedPathVariants": [
+      {
+        "host": "dbx.molystream.org",
+        "prefix": "/embed/",
+        "suffix": "/q/1"
+      }
+    ]
   }
 }
