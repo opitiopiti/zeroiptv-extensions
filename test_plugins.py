@@ -44,6 +44,15 @@ class PluginTests(unittest.TestCase):
         self.assertEqual(result['items'][0]['path'], EP)
         self.assertEqual(result['items'][0]['poster'], BASE+'/poster.jpg')
         self.assertTrue(result['next'])
+    def test_episode_flag_is_not_poster(self):
+        html = f'<article class="article-episode-card"><figure><figcaption><img class="language-flag" src="/altyazi.png"><a class="episode-card-title" href="{EP}"><b class="series-name">Sample</b></a></figcaption><a class="figure-link"><img class="afis wp-post-image" src="/afisler/sample-220x140.jpg"></a></figure></article>'
+        ctx = FakeContext({BASE+'/tum-bolumler/': html})
+        self.assertEqual(self.p.get_home(ctx)['items'][0]['poster'], BASE+'/afisler/sample-220x140.jpg')
+    def test_archive_main_cover_without_outer_wrapper(self):
+        html = '<div class="col-1"><article class="detailed-article"><figure class="big-cover"><img src="/other.jpg"><img class="main-cover" src="/afisler/sample-200x290.jpg"></figure><h3><a href="/diziler/sample/">Sample</a></h3></article><div class="woca-pagination"><a href="/dizi-arsivi/page/2/">2</a></div></div>'
+        result = self.p.get_series(FakeContext({BASE+'/dizi-arsivi/':html}))
+        self.assertEqual(result['items'][0]['poster'], BASE+'/afisler/sample-200x290.jpg')
+        self.assertTrue(result['next'])
     def test_series_tab(self):
         html = '<div id="page-archive"><article class="detailed-article"><figure><img src="/series.jpg"></figure><h3><a href="/diziler/sample/">Sample</a></h3></article><a href="/dizi-arsivi/page/2/">2</a></div><ul class="alphabetical-category-list"><li><a href="/diziler/other/">Other</a></li></ul>'
         ctx = FakeContext({BASE+'/dizi-arsivi/':html, BASE+'/dizi-arsivi/page/2/':html.replace('/sample/', '/second/').replace('/page/2/', '/page/1/')})

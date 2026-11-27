@@ -10,7 +10,7 @@ import re
 # ================================================================
 ID = "dizibox"
 NAME = "DiziBox"
-VERSION = 8
+VERSION = 9
 TYPE = "series"
 BASE_URL = "https://www.dizibox.live"
 PREVIOUS_HOSTS = ("dizibox.live", "www.dizibox.live")
@@ -99,8 +99,10 @@ def image(node, base):
     return ""
 
 
-def poster(card, base):
-    for selector in ("img.afis", "img.wp-post-image", "a.figure-link img", "figure img", "img"):
+def poster(card, base, kind="series"):
+    # Site kartının kendi görseli: altyazı/dil bayraklarını asla poster olarak alma.
+    selectors = ("a.figure-link img.afis.wp-post-image", "img.afis", "a.figure-link img", "img.wp-post-image") if kind == "episode" else ("figure.big-cover img.main-cover", "img.main-cover", "figure img.afis", "figure img")
+    for selector in selectors:
         for node in card.select(selector):
             result = image(node, base)
             if result: return result
@@ -116,7 +118,7 @@ def cards(doc, base, card_selector, link_selector, title_selector, kind, label_s
         title = text(card.select_one(title_selector)) or text(a) or a.get("title", "")
         if not path or not title: continue
         label = " ".join(text(n) for n in card.select(label_selector)) if label_selector else ""
-        result.setdefault(path, dict(path=path, title=title, poster=poster(card, base), label=label, kind=kind))
+        result.setdefault(path, dict(path=path, title=title, poster=poster(card, base, kind), label=label, kind=kind))
     return list(result.values())
 
 # ================================================================
@@ -137,12 +139,12 @@ def get_series(ctx, page=1):
         raise ValueError("Sayfa numarası geçersiz")
     path = "/dizi-arsivi/" if page == 1 else f"/dizi-arsivi/page/{page}/"
     doc, url = document(ctx, path)
-    items = cards(doc, url, "#page-archive article.detailed-article", "h3 a", "h3 a", "series")
+    items = cards(doc, url, "#page-archive article.detailed-article, .col-1 article.detailed-article", "h3 a", "h3 a", "series")
     items = [item for item in items if urlsplit(item["path"]).path.startswith("/diziler/")]
     if page == 1 and not items:
         raise ValueError("Dizi arşivi içerik vermedi")
     expected = f"/dizi-arsivi/page/{page + 1}/"
-    has_next = any(urlsplit(path_of(a.get("href"), url)).path == expected for a in doc.select("#page-archive a[href]"))
+    has_next = any(urlsplit(path_of(a.get("href"), url)).path == expected for a in doc.select("#page-archive a[href], .col-1 .woca-pagination a[href]"))
     return dict(items=items, next=bool(items and has_next))
 
 # ================================================================
@@ -206,7 +208,7 @@ def get_details(ctx, path):
         episodes.append(dict(path=path, title=f"{n}. Bölüm", season=number(r"(\d+)-sezon", path) or 1, number=n))
         complete = False
     episodes = sorted({e["path"]: e for e in episodes}.values(), key=lambda e:(e["season"], e["number"]))
-    return dict(path=canonical or path, title=title, poster=image(doc.select_one("div.tv-overview figure img"),url) or absolute((doc.select_one('meta[property="og:image"]') or {}).get("content"), url), plot=text(doc.select_one("div.tv-story p")), episodes=episodes, complete=complete)
+    return dict(path=canonical or path, title=title, poster=absolute((doc.select_one('meta[property="og:image"]') or {}).get("content"), url) or image(doc.select_one("div.tv-overview figure img"),url), plot=text(doc.select_one("div.tv-story p")), episodes=episodes, complete=complete)
 
 # ================================================================
 # OYnatma / EXTRACTOR
