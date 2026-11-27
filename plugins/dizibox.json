@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "id": "dizibox",
+  "version": 1,
+  "name": "DiziBox",
+  "type": "series",
+  "baseUrl": "https://www.dizibox.live",
+  "previousHosts": [
+    "dizibox.live",
+    "www.dizibox.live"
+  ],
+  "rows": [
+    {
+      "name": "Son Bölümler",
+      "path": "/tum-bolumler/",
+      "cards": "article.article-episode-card",
+      "link": "a.episode-card-title",
+      "title": "b.series-name",
+      "label": "span.season, b.episode",
+      "kind": "episode"
+    },
+    {
+      "name": "Popüler",
+      "path": "/tum-bolumler/?tip=populer",
+      "cards": "article.article-episode-card",
+      "link": "a.episode-card-title",
+      "title": "b.series-name",
+      "label": "span.season, b.episode",
+      "kind": "episode"
+    },
+    {
+      "name": "Dram",
+      "path": "/tur/dram/",
+      "cards": "article.article-series-poster",
+      "link": "a.poster-title",
+      "title": "a.poster-title",
+      "kind": "series"
+    },
+    {
+      "name": "Komedi",
+      "path": "/tur/komedi/",
+      "cards": "article.article-series-poster",
+      "link": "a.poster-title",
+      "title": "a.poster-title",
+      "kind": "series"
+    },
+    {
+      "name": "Korku",
+      "path": "/tur/korku/",
+      "cards": "article.article-series-poster",
+      "link": "a.poster-title",
+      "title": "a.poster-title",
+      "kind": "series"
+    }
+  ],
+  "search": {
+    "path": "/search/{query}/",
+    "cards": "article.detailed-article",
+    "link": "h3 a",
+    "title": "h3 a",
+    "kind": "series"
+  },
+  "detail": {
+    "title": "div.tv-overview h1 a, h1 span.tv-title-archive span[itemprop=name], h1 a",
+    "seriesLink": "div.tv-overview h1 a, h1 a",
+    "poster": "div.tv-overview figure img",
+    "plot": "div.tv-story p",
+    "episode": "a.season-episode",
+    "season": "div#seasons-list a",
+    "seasonPattern": "(\\d+)\\.\\s*Sezon",
+    "episodePattern": "(\\d+)\\.\\s*Bölüm",
+    "seasonPathPattern": "(\\d+)-sezon",
+    "episodePathPattern": "(\\d+)-bolum"
+  },
+  "playback": {
+    "iframe": "div#video-area iframe, div#Player iframe, iframe[src]",
+    "alternates": "div.video-toolbar option[value]",
+    "media": "video[src], video source[src], source[src]",
+    "subtitles": "track[src]",
+    "maxDepth": 4,
+    "maxPages": 14,
+    "unwrapBase64": true,
+    "cryptoJsOpenSsl": true,
+    "kingQuery": true
+  }
+}
