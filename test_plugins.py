@@ -45,11 +45,18 @@ class PluginTests(unittest.TestCase):
         self.assertEqual(result['items'][0]['poster'], BASE+'/poster.jpg')
         self.assertTrue(result['next'])
     def test_series_tab(self):
-        html = '<article class="article-series-poster"><a class="poster-title" href="/sample/">Sample</a></article>'
-        ctx = FakeContext({BASE+f'/tur/{genre}/':html for genre in ('dram','komedi','korku')})
-        mod = self.p
-        self.assertEqual(len(mod.get_series(ctx,1)['items']),1)
-        self.assertEqual(len(ctx.calls),3)
+        html = '<div id="page-archive"><article class="detailed-article"><figure><img src="/series.jpg"></figure><h3><a href="/diziler/sample/">Sample</a></h3></article><a href="/dizi-arsivi/page/2/">2</a></div><ul class="alphabetical-category-list"><li><a href="/diziler/other/">Other</a></li></ul>'
+        ctx = FakeContext({BASE+'/dizi-arsivi/':html, BASE+'/dizi-arsivi/page/2/':html.replace('/sample/', '/second/').replace('/page/2/', '/page/1/')})
+        first = self.p.get_series(ctx, 1)
+        self.assertEqual(first['items'][0]['path'], '/diziler/sample/')
+        self.assertEqual(first['items'][0]['poster'], BASE+'/series.jpg')
+        self.assertEqual(len(first['items']),1)
+        self.assertTrue(first['next'])
+        self.assertEqual(len(ctx.calls),1)
+        second = self.p.get_series(ctx, 2)
+        self.assertEqual(second['items'][0]['path'], '/diziler/second/')
+        self.assertFalse(second['next'])
+        self.assertEqual(len(ctx.calls),2)
     def test_search(self):
         ctx = FakeContext({BASE+'/search/A+B/':'<article class="detailed-article"><h3><a href="/sample/">Sample</a></h3></article>'})
         self.assertEqual(self.p.search(ctx, 'A B')['items'][0]['title'], 'Sample')

@@ -10,7 +10,7 @@ import re
 # ================================================================
 ID = "dizibox"
 NAME = "DiziBox"
-VERSION = 7
+VERSION = 8
 TYPE = "series"
 BASE_URL = "https://www.dizibox.live"
 PREVIOUS_HOSTS = ("dizibox.live", "www.dizibox.live")
@@ -130,19 +130,20 @@ def get_home(ctx, page=1):
     return dict(items=items, next=bool(items and doc.select_one(f'a[href*="/page/{page+1}/"]')))
 
 # ================================================================
-# DİZİLER (mevcut üç tür yolu; tam katalog doğrulanmadı)
+# DİZİLER — gerçek arşiv, her sayfada kendi dizi posterleri
 # ================================================================
 def get_series(ctx, page=1):
-    items = {}
-    next_page = False
-    for genre in ("dram", "komedi", "korku"):
-        path = f"/tur/{genre}/" + (f"page/{page}/" if page > 1 else "")
-        doc, url = document(ctx, path)
-        batch = cards(doc, url, "article.article-series-poster", "a.poster-title", "a.poster-title", "series")
-        for card in batch:
-            items.setdefault(card["path"], card)
-        next_page |= bool(batch and doc.select_one(f'a[href*="/page/{page+1}/"]'))
-    return dict(items=list(items.values()), next=next_page)
+    if page < 1:
+        raise ValueError("Sayfa numarası geçersiz")
+    path = "/dizi-arsivi/" if page == 1 else f"/dizi-arsivi/page/{page}/"
+    doc, url = document(ctx, path)
+    items = cards(doc, url, "#page-archive article.detailed-article", "h3 a", "h3 a", "series")
+    items = [item for item in items if urlsplit(item["path"]).path.startswith("/diziler/")]
+    if page == 1 and not items:
+        raise ValueError("Dizi arşivi içerik vermedi")
+    expected = f"/dizi-arsivi/page/{page + 1}/"
+    has_next = any(urlsplit(path_of(a.get("href"), url)).path == expected for a in doc.select("#page-archive a[href]"))
+    return dict(items=items, next=bool(items and has_next))
 
 # ================================================================
 # ARAMA
@@ -205,7 +206,7 @@ def get_details(ctx, path):
         episodes.append(dict(path=path, title=f"{n}. Bölüm", season=number(r"(\d+)-sezon", path) or 1, number=n))
         complete = False
     episodes = sorted({e["path"]: e for e in episodes}.values(), key=lambda e:(e["season"], e["number"]))
-    return dict(path=canonical or path, title=title, poster=image(doc.select_one("div.tv-overview figure img"),url), plot=text(doc.select_one("div.tv-story p")), episodes=episodes, complete=complete)
+    return dict(path=canonical or path, title=title, poster=image(doc.select_one("div.tv-overview figure img"),url) or absolute((doc.select_one('meta[property="og:image"]') or {}).get("content"), url), plot=text(doc.select_one("div.tv-story p")), episodes=episodes, complete=complete)
 
 # ================================================================
 # OYnatma / EXTRACTOR

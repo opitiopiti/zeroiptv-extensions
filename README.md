@@ -4,11 +4,11 @@ Bu belge hem insan geliştiriciler hem de ChatGPT gibi kod üreten araçlar içi
 
 ZeroIPTV Android uygulaması Kotlin, Chaquopy ve Python 3.11 kullanır. Eklentiler gerçek Python dosyalarıdır. CloudStream, JSON eklenti tanımı, harici sunucu veya yeni oynatıcı gerekmez. Dahili veri aktarımı JSON serileştirme kullanabilir; eklenti geliştiricisi Python `dict` ve `list` döndürür.
 
-## 1. Kurulum Talimatı
+## 1. Kurulum Talimati
 
 Yeni bir eklenti hazırlatırken aşağıdaki talimatı bu README'nin tamamı ve siteye ait mevcut kaynak kodu ile birlikte gönderin:
 
-> Bu README'deki ZeroIPTV V14 SDK 3 sözleşmesine uygun **tek dosyalık** Python eklentisi hazırla. Verdiğim site kaynak kodunu ve HTML/API örneklerini incele; bilinen URL ve ayrıştırma mantığını koru. `plugins/<id>.py` dosyasının tam kodunu ver. Metadata sabitlerini, HTTP başlıklarını, yalnız gerçekten desteklenen `get_home`, `get_series`, `get_movies`, `get_animes` fonksiyonlarını, zorunlu `search`, `get_details`, `resolve` fonksiyonlarını ve yardımcıları aynı dosyada yaz. Desteklenmeyen bölüm için boş fonksiyon veya sahte veri oluşturma. Kategori, Popüler, Trend gibi yeni ekran bölümü ekleme. Tüm ağ çağrılarında `ctx.get` kullan; yalnız erişim yetkisi olan kaynaklarla çalış. Manifest ve segment başlıklarını ayrı döndür. İçerik yolları domain'den bağımsız olsun. Yeni eklentide VERSION=1; mevcut eklentide VERSION artır. Python 3.11 ve BeautifulSoup kullan, başka bağımlılık ekleme. Dönüş biçimlerini bu README'deki alanlarla birebir eşleştir. Bilinmeyen HTML seçicilerini, URL yollarını veya oynatma yöntemlerini uydurma; doğrulanamayan yerleri belirt. Çevrimdışı fixture testleri ve yayınlama adımlarını da ver. Repo indeksini elle yazma; `build.py` ile üret. Android kodunu, Xtream API'yi, oynatıcıları ve diğer eklentileri değiştirme.
+> Bu README'deki ZeroIPTV V15 SDK 3 sözleşmesine uygun **tek dosyalık** Python eklentisi hazırla. Verdiğim site kaynak kodunu ve HTML/API örneklerini incele; bilinen URL ve ayrıştırma mantığını koru. `plugins/<id>.py` dosyasının tam kodunu ver. Metadata sabitlerini, HTTP başlıklarını, yalnız gerçekten desteklenen `get_home`, `get_series`, `get_movies`, `get_animes` fonksiyonlarını, zorunlu `search`, `get_details`, `resolve` fonksiyonlarını ve yardımcıları aynı dosyada yaz. Desteklenmeyen bölüm için boş fonksiyon veya sahte veri oluşturma. Kategori, Popüler, Trend gibi yeni ekran bölümü ekleme. Tüm ağ çağrılarında `ctx.get` kullan; yalnız erişim yetkisi olan kaynaklarla çalış. Manifest ve segment başlıklarını ayrı döndür. İçerik yolları domain'den bağımsız olsun. Yeni eklentide VERSION=1; mevcut eklentide VERSION artır. Python 3.11 ve BeautifulSoup kullan, başka bağımlılık ekleme. Dönüş biçimlerini bu README'deki alanlarla birebir eşleştir. Bilinmeyen HTML seçicilerini, URL yollarını veya oynatma yöntemlerini uydurma; doğrulanamayan yerleri belirt. Çevrimdışı fixture testleri ve yayınlama adımlarını da ver. Repo indeksini elle yazma; `build.py` ile üret. Android kodunu, Xtream API'yi, oynatıcıları ve diğer eklentileri değiştirme.
 
 Güncelleme için mevcut `plugins/<id>.py` dosyasını da gönderin. Yeni eklenti geliştirmek için tüm Android projesi gerekmez.
 
@@ -25,7 +25,7 @@ Güncelleme için mevcut `plugins/<id>.py` dosyasını da gönderin. Yeni eklent
 - `build.py` dosyayı çalıştırmadan AST ile üst düzey `def` tanımlarını bulur ve `repo.tsv` üretir. Android paketi çalıştırırken gerçek çağrılabilir fonksiyonların indeksle eşleşmesini kontrol eder. Fonksiyon eklemek veya kaldırmak için APK değiştirilmez; VERSION artırılır ve paket yeniden üretilir.
 - `get_popular`, `get_genres` vb. yardımcı olabilir ama yeni ekran bölümü oluşturmaz. Özel row listeleri ve kategori paneli yoktur. Arama ve yenileme araç çubuğundadır.
 - Kaynak seçimi korunur. İlk mevcut bölüm açılır; bütün bölümler aynı anda ağdan çekilmez. Anime filmse `kind="movie"`, bölümlü anime ise `kind="series"` veya `"episode"` döndürün. Ayrı anime oynatıcısı yoktur.
-- DiziBox yalnız `get_home` ve `get_series` içerir. Diziler fonksiyonu V13'teki üç tür yolunu tek listede birleştirir; eksiksiz site kataloğu olduğu doğrulanmamıştır.
+- DiziBox yalnız `get_home` ve `get_series` içerir. Diziler fonksiyonu `/dizi-arsivi/` ve `/dizi-arsivi/page/<n>/` sayfalarındaki posterli dizi kartlarını okur. Alfabetik metin listesi poster kartı olarak kullanılmaz.
 
 ## 3. Dosya düzeni ve metadata
 
@@ -180,7 +180,7 @@ Başlık değerleri tamamlanmış metin olmalıdır; gerekiyorsa dinamik değerl
 
 - Uygulama açılışında, başarılı Xtream oturumundan sonra GitHub kontrolü yapılır; anasayfa bunu beklemez. Python ilk katalog/detay/oynatma çağrısında başlatılır.
 - Depo, liste, arama ve detay cache süresi 30 dakikadır. Ekranda eski kayıt varsa gösterilir, ihtiyaç halinde yenilenir. Bir bölüm yalnız görünürken veya ilgili detay/arama akışı sırasında yenilenir; dört bölüm sürekli topluca taranmaz. Uygulama kapalıyken 30 dakikalık kontrol garanti edilmez.
-- Manuel yenileme ve depo yenileme mevcuttur. Kaynak hatasında eski katalog korunur. Eklenti paketi/indeks yükseltilince yeni bölüm metadatası güncellenir. İçerik cache'i sekme ve sayfa bazında ayrılır.
+- Manuel yenileme ve depo yenileme mevcuttur. Kaynak hatasında eski katalog korunur. Eklenti paketi/indeks yükseltilince yeni bölüm metadatası güncellenir. İçerik cache'i eklenti sürümü, sekme, sayfa ve arama bazında ayrılır. Her içerik fonksiyonu kendi kaynak kartının posterini döndürür; farklı sekmelerin posterlerini veya kart kimliklerini birleştirmeyin. Son Bölümler bölüm görselini, Diziler dizi afişini, Filmler film afişini, Animeler anime afişini kullanır. Aynı görsel URL’sinin Coil önbelleğinde paylaşılması normaldir.
 - `ctx.get` ağ sınırlarını uygular; Python'da sonsuz döngü, sınırsız thread, toplu site taraması ve beklemeler kullanmayın. Gerekirse sınırlı paralellik kullanın. Oynatma işlemini açılışta tetiklemeyin.
 
 ## 10. Yeni eklenti yayınlama ve güncelleme
