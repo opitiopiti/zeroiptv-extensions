@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "ZeroIPTV Extensions",
+  "plugins": [
+    {
+      "id": "dizibox",
+      "name": "DiziBox",
+      "version": 1,
+      "enabled": true,
+      "file": "plugins/dizibox.json"
+    }
+  ]
+}
