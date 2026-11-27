@@ -5,7 +5,7 @@
     {
       "id": "dizibox",
       "name": "DiziBox",
-      "version": 3,
+      "version": 4,
       "enabled": true,
       "file": "plugins/dizibox.json"
     }
