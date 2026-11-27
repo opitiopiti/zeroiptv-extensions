@@ -4,7 +4,7 @@ Bu belge hem insan geliştiriciler hem de ChatGPT gibi kod üreten araçlar içi
 
 ZeroIPTV Android uygulaması Kotlin, Chaquopy ve Python 3.11 kullanır. Eklentiler gerçek Python dosyalarıdır. CloudStream, JSON eklenti tanımı, harici sunucu veya yeni oynatıcı gerekmez. Dahili veri aktarımı JSON serileştirme kullanabilir; eklenti geliştiricisi Python `dict` ve `list` döndürür.
 
-## 1. ChatGPT'ye kopyalanacak talimat
+## 1. Kullanma Talimati
 
 Yeni bir eklenti hazırlatırken aşağıdaki talimatı bu README'nin tamamı ve siteye ait mevcut kaynak kodu ile birlikte gönderin:
 
